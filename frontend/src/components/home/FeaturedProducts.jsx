@@ -1,15 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { FiShoppingCart, FiHeart, FiStar } from 'react-icons/fi'
 import { useCart } from '../../context/CartContext'
 import { useWishlist } from '../../context/WishlistContext'
-
-const products = [
-  { id: 1, name: 'Fresh Apple', price: 120, originalPrice: 150, discount: 20, unit: 'kg', rating: 4.5, emoji: '🍎', category: 'Fruits' },
-  { id: 2, name: 'Banana', price: 60, originalPrice: 80, discount: 25, unit: 'kg', rating: 4.3, emoji: '🍌', category: 'Fruits' },
-  { id: 3, name: 'Broccoli', price: 80, originalPrice: 100, discount: 20, unit: 'kg', rating: 4.6, emoji: '🥦', category: 'Vegetables' },
-  { id: 4, name: 'Tomato', price: 30, originalPrice: 40, discount: 25, unit: 'kg', rating: 4.2, emoji: '🍅', category: 'Vegetables' },
-]
 
 function StarRating({ rating }) {
   return (
@@ -34,6 +27,12 @@ function ProductCard({ product }) {
   const { addToCart } = useCart()
   const { toggleWishlist, isWishlisted } = useWishlist()
 
+  const emoji =
+    product.category?.name === 'Fruits' ? '🍎' :
+    product.category?.name === 'Vegetables' ? '🥦' :
+    product.category?.name === 'Dairy' ? '🥛' :
+    product.category?.name === 'Grains' ? '🌾' : '🛒'
+
   const handleAddToCart = () => {
     addToCart(product)
     setAddedToCart(true)
@@ -52,31 +51,48 @@ function ProductCard({ product }) {
         >
           <FiHeart
             className={`text-lg ${
-              isWishlisted(product.id)
+              isWishlisted(product._id)
                 ? 'fill-red-500 text-red-500'
                 : 'text-gray-400'
             }`}
           />
         </button>
-        <span className="text-8xl group-hover:scale-110 transition-transform duration-300">
-          {product.emoji}
+
+        {product.images && product.images.length > 0 && product.images[0] ? (
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
+            onError={(e) => {
+              e.target.style.display = 'none'
+              e.target.nextSibling.style.display = 'block'
+            }}
+          />
+        ) : null}
+        <span
+          className="text-8xl group-hover:scale-110 transition-transform duration-300"
+          style={{ display: product.images && product.images.length > 0 && product.images[0] ? 'none' : 'block' }}
+        >
+          {emoji}
         </span>
       </div>
       <div className="p-4">
         <span className="text-xs text-green-600 font-medium">
-          {product.category}
+          {product.category?.name}
         </span>
         <h3 className="font-semibold text-gray-800 mt-1 mb-1">
           {product.name}
         </h3>
-        <StarRating rating={product.rating} />
+        <StarRating rating={product.ratings?.average || 0} />
         <div className="flex items-center gap-2 mt-2 mb-3">
           <span className="text-xl font-bold text-gray-900">
             ₹{product.price}
           </span>
-          <span className="text-sm text-gray-400 line-through">
-            ₹{product.originalPrice}
-          </span>
+          {product.originalPrice > 0 && (
+            <span className="text-sm text-gray-400 line-through">
+              ₹{product.originalPrice}
+            </span>
+          )}
           <span className="text-xs text-gray-500">/{product.unit}</span>
         </div>
         <button
@@ -96,6 +112,32 @@ function ProductCard({ product }) {
 }
 
 export default function FeaturedProducts() {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchFeatured()
+  }, [])
+
+  const fetchFeatured = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('http://localhost:5000/api/products')
+      const data = await response.json()
+
+      if (data.success) {
+        const featured = data.products.filter((p) => p.isFeatured)
+        setProducts(featured.length > 0 ? featured.slice(0, 4) : data.products.slice(0, 4))
+      }
+    } catch (error) {
+      console.log('Error:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading || products.length === 0) return null
+
   return (
     <section className="py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -112,7 +154,7 @@ export default function FeaturedProducts() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
       </div>

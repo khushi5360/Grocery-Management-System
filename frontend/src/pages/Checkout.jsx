@@ -42,7 +42,7 @@ export default function Checkout() {
     name: item.name,
     price: item.price,
     quantity: item.quantity,
-    image: ''
+    image: (item.images && item.images[0]) || ''
   }))
 
 if (orderItems.length === 0) {
@@ -212,7 +212,11 @@ if (orderItems.length === 0) {
                   {cartItems.map((item) => (
                     <div key={item._id || item.id} className="flex justify-between text-sm">
                       <span className="text-gray-600 flex items-center gap-1">
-                        <span>{getEmoji(item)}</span>
+                        {item.images && item.images.length > 0 ? (
+                          <img src={item.images[0]} alt={item.name} className="w-5 h-5 rounded object-cover" onError={(e) => { e.target.style.display = 'none' }} />
+                        ) : (
+                          <span>{getEmoji(item)}</span>
+                        )}
                         {item.name} × {item.quantity}
                       </span>
                       <span className="font-medium">₹{item.price * item.quantity}</span>

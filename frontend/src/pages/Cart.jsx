@@ -47,16 +47,25 @@ export default function Cart() {
                 key={item._id}
                 className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm"
               >
-                {/* Product Emoji */}
-                {/* Product Emoji */}
-<div className="bg-gray-50 rounded-xl p-4 text-4xl">
-  {item.emoji ? item.emoji :
-   item.category?.name === 'Fruits' || item.category === 'Fruits' ? '🍎' :
-   item.category?.name === 'Vegetables' || item.category === 'Vegetables' ? '🥦' :
-   item.category?.name === 'Dairy' || item.category === 'Dairy' ? '🥛' :
-   item.category?.name === 'Grains' || item.category === 'Grains' ? '🌾' :
-   item.category?.name === 'Beverages' || item.category === 'Beverages' ? '🧃' :
-   item.category?.name === 'Snacks' || item.category === 'Snacks' ? '🍿' : '🛒'}
+                {/* Product Image */}
+<div className="bg-gray-50 rounded-xl p-4 w-16 h-16 flex items-center justify-center overflow-hidden">
+  {item.images && item.images.length > 0 ? (
+    <img
+      src={item.images[0]}
+      alt={item.name}
+      className="w-full h-full object-cover rounded-lg"
+      onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block' }}
+    />
+  ) : null}
+  <span className="text-4xl" style={{ display: item.images && item.images.length > 0 ? 'none' : 'block' }}>
+    {item.emoji ? item.emoji :
+     item.category?.name === 'Fruits' || item.category === 'Fruits' ? '🍎' :
+     item.category?.name === 'Vegetables' || item.category === 'Vegetables' ? '🥦' :
+     item.category?.name === 'Dairy' || item.category === 'Dairy' ? '🥛' :
+     item.category?.name === 'Grains' || item.category === 'Grains' ? '🌾' :
+     item.category?.name === 'Beverages' || item.category === 'Beverages' ? '🧃' :
+     item.category?.name === 'Snacks' || item.category === 'Snacks' ? '🍿' : '🛒'}
+  </span>
 </div>
                 {/* Product Info */}
                 <div className="flex-1">

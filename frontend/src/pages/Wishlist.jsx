@@ -52,7 +52,15 @@ export default function Wishlist() {
             >
               {/* Image */}
               <div className="relative bg-gray-50 p-6 flex items-center justify-center h-40">
-                <span className="text-6xl">
+                {product.images && product.images.length > 0 ? (
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="w-full h-full object-contain"
+                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block' }}
+                  />
+                ) : null}
+                <span className="text-6xl" style={{ display: product.images && product.images.length > 0 ? 'none' : 'block' }}>
                   {product.category?.name === 'Fruits' || product.category === 'Fruits' ? '🍎' :
                    product.category?.name === 'Vegetables' || product.category === 'Vegetables' ? '🥦' :
                    product.category?.name === 'Dairy' || product.category === 'Dairy' ? '🥛' :

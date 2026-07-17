@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   FiShoppingCart,
@@ -9,62 +9,17 @@ import {
 import { useCart } from '../../context/CartContext'
 import { useWishlist } from '../../context/WishlistContext'
 
-const bestSellers = [
-  {
-    id: 1,
-    name: 'Whole Milk 1L',
-    price: 60,
-    originalPrice: 65,
-    discount: 8,
-    unit: 'litre',
-    rating: 4.8,
-    sold: 1200,
-    emoji: '🥛',
-    category: 'Dairy',
-  },
-  {
-    id: 2,
-    name: 'Fresh Potato',
-    price: 40,
-    originalPrice: 50,
-    discount: 20,
-    unit: 'kg',
-    rating: 4.5,
-    sold: 980,
-    emoji: '🥔',
-    category: 'Vegetables',
-  },
-  {
-    id: 3,
-    name: 'Basmati Rice',
-    price: 120,
-    originalPrice: 140,
-    discount: 14,
-    unit: 'kg',
-    rating: 4.7,
-    sold: 850,
-    emoji: '🍚',
-    category: 'Grains',
-  },
-  {
-    id: 4,
-    name: 'Fresh Onion',
-    price: 25,
-    originalPrice: 35,
-    discount: 29,
-    unit: 'kg',
-    rating: 4.3,
-    sold: 760,
-    emoji: '🧅',
-    category: 'Vegetables',
-  },
-]
-
 function BestSellerCard({ product }) {
   const [addedToCart, setAddedToCart] = useState(false)
 
   const { addToCart } = useCart()
   const { toggleWishlist, isWishlisted } = useWishlist()
+
+  const emoji =
+    product.category?.name === 'Fruits' ? '🍎' :
+    product.category?.name === 'Vegetables' ? '🥦' :
+    product.category?.name === 'Dairy' ? '🥛' :
+    product.category?.name === 'Grains' ? '🌾' : '🛒'
 
   const handleAddToCart = () => {
     addToCart(product)
@@ -88,21 +43,35 @@ function BestSellerCard({ product }) {
         >
           <FiHeart
             className={`text-lg ${
-              isWishlisted(product.id)
+              isWishlisted(product._id)
                 ? 'fill-red-500 text-red-500'
                 : 'text-gray-400'
             }`}
           />
         </button>
 
-        <span className="text-8xl group-hover:scale-110 transition-transform duration-300">
-          {product.emoji}
+        {product.images && product.images.length > 0 && product.images[0] ? (
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
+            onError={(e) => {
+              e.target.style.display = 'none'
+              e.target.nextSibling.style.display = 'block'
+            }}
+          />
+        ) : null}
+        <span
+          className="text-8xl group-hover:scale-110 transition-transform duration-300"
+          style={{ display: product.images && product.images.length > 0 && product.images[0] ? 'none' : 'block' }}
+        >
+          {emoji}
         </span>
       </div>
 
       <div className="p-4">
         <span className="text-xs text-orange-500 font-medium">
-          {product.category}
+          {product.category?.name}
         </span>
 
         <h3 className="font-semibold text-gray-800 mt-1 mb-1">
@@ -113,12 +82,12 @@ function BestSellerCard({ product }) {
           <div className="flex items-center gap-1">
             <FiStar className="text-yellow-400 fill-yellow-400 text-xs" />
             <span className="text-xs text-gray-600">
-              {product.rating}
+              {product.ratings?.average || 0}
             </span>
           </div>
 
           <span className="text-xs text-gray-400">
-            {product.sold}+ sold
+            {product.ratings?.count || 0}+ sold
           </span>
         </div>
 
@@ -127,9 +96,11 @@ function BestSellerCard({ product }) {
             ₹{product.price}
           </span>
 
-          <span className="text-sm line-through text-gray-400">
-            ₹{product.originalPrice}
-          </span>
+          {product.originalPrice > 0 && (
+            <span className="text-sm line-through text-gray-400">
+              ₹{product.originalPrice}
+            </span>
+          )}
 
           <span className="text-xs text-red-500">
             -{product.discount}%
@@ -153,6 +124,31 @@ function BestSellerCard({ product }) {
 }
 
 export default function BestSellers() {
+  const [bestSellers, setBestSellers] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchBestSellers()
+  }, [])
+
+  const fetchBestSellers = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('http://localhost:5000/api/products?best=true')
+      const data = await response.json()
+
+      if (data.success) {
+        setBestSellers(data.products.slice(0, 4))
+      }
+    } catch (error) {
+      console.log('Error:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading || bestSellers.length === 0) return null
+
   return (
     <section className="py-12 bg-orange-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -182,7 +178,7 @@ export default function BestSellers() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {bestSellers.map((product) => (
             <BestSellerCard
-              key={product.id}
+              key={product._id}
               product={product}
             />
           ))}

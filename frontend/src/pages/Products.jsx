@@ -87,14 +87,22 @@ export default function Products() {
             {products.map((product) => (
               <div
                 key={product._id}
-                className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                className="relative bg-white rounded-2xl border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
               >
                 {/* Image Area */}
                 <div className="relative bg-gray-50 p-6 flex items-center justify-center h-48">
                   <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                     -{product.discount}%
                   </span>
-                  <span className="text-8xl">
+                  {product.images && product.images.length > 0 && product.images[0] ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-full object-contain"
+                      onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block' }}
+                    />
+                  ) : null}
+                  <span className="text-8xl" style={{ display: product.images && product.images.length > 0 && product.images[0] ? 'none' : 'block' }}>
                     {product.category.name === 'Fruits' ? '🍎' :
                      product.category.name === 'Vegetables' ? '🥦' :
                      product.category.name === 'Dairy' ? '🥛' :
@@ -105,12 +113,12 @@ export default function Products() {
                 {/* Wishlist Button */}
                 <button
                   onClick={() => toggleWishlist(product)}
-                  className="absolute top-3    right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition"
+                  className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition"
                 >
                   <FiHeart
                     className={`text-lg ${
                      isWishlisted(product._id)
-                     ? 'fill-red-500        text-red-500'
+                     ? 'fill-red-500 text-red-500'
                      : 'text-gray-400'
                }`}
                   />

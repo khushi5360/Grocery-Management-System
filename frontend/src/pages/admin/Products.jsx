@@ -16,6 +16,7 @@ export default function Products() {
     category: '',
     unit: 'kg',
     stock: '',
+    imageUrl: '',
     isFeatured: false,
     isBestSeller: false
   })
@@ -57,7 +58,10 @@ export default function Products() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify({
+          ...form,
+          images: form.imageUrl ? [form.imageUrl] : []
+        })
       })
       const data = await res.json()
       if (data.success) {
@@ -66,7 +70,7 @@ export default function Products() {
         setForm({
           name: '', description: '', price: '',
           originalPrice: '', discount: '', category: '',
-          unit: 'kg', stock: '', isFeatured: false, isBestSeller: false
+          unit: 'kg', stock: '', imageUrl: '', isFeatured: false, isBestSeller: false
         })
       } else {
         alert(data.message)
@@ -151,7 +155,15 @@ export default function Products() {
               <tr key={product._id} className="hover:bg-gray-50 transition">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">
+                    {product.images && product.images.length > 0 ? (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-10 h-10 object-cover rounded-lg"
+                        onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline' }}
+                      />
+                    ) : null}
+                    <span className="text-2xl" style={{ display: product.images && product.images.length > 0 ? 'none' : 'inline' }}>
                       {product.category?.name === 'Fruits' ? '🍎' :
                        product.category?.name === 'Vegetables' ? '🥦' :
                        product.category?.name === 'Dairy' ? '🥛' : '🛒'}
@@ -300,6 +312,28 @@ export default function Products() {
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
                   />
                 </div>
+              </div>
+
+              {/* Image URL */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://example.com/apple.jpg"
+                  value={form.imageUrl}
+                  onChange={(e) => setForm({...form, imageUrl: e.target.value})}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
+                />
+                {form.imageUrl && (
+                  <img
+                    src={form.imageUrl}
+                    alt="preview"
+                    className="mt-2 w-20 h-20 object-cover rounded-xl border border-gray-200"
+                    onError={(e) => { e.target.style.display = 'none' }}
+                  />
+                )}
               </div>
 
               {/* Category + Unit */}

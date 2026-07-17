@@ -5,7 +5,7 @@ export default function Categories() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState({ name: '', description: '', icon: '' })
+  const [form, setForm] = useState({ name: '', description: '', icon: '', image: '' })
 
   useEffect(() => { fetchCategories() }, [])
 
@@ -36,7 +36,7 @@ export default function Categories() {
       const data = await res.json()
       if (data.success) {
         setShowModal(false)
-        setForm({ name: '', description: '', icon: '' })
+        setForm({ name: '', description: '', icon: '', image: '' })
         fetchCategories()
       } else {
         alert(data.message)
@@ -66,7 +66,15 @@ export default function Categories() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {categories.map((cat) => (
           <div key={cat._id} className="bg-white rounded-2xl p-6 shadow-sm text-center hover:shadow-md transition">
-            <div className="text-5xl mb-3">{cat.icon || '📦'}</div>
+            {cat.image ? (
+              <img
+                src={cat.image}
+                alt={cat.name}
+                className="w-16 h-16 mx-auto mb-3 object-cover rounded-xl"
+                onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block' }}
+              />
+            ) : null}
+            <div className="text-5xl mb-3" style={{ display: cat.image ? 'none' : 'block' }}>{cat.icon || '📦'}</div>
             <h3 className="font-bold text-gray-800">{cat.name}</h3>
             <p className="text-sm text-gray-500 mt-1">{cat.description}</p>
           </div>
@@ -114,6 +122,24 @@ export default function Categories() {
                   onChange={(e) => setForm({...form, icon: e.target.value})}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
                 />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1">Image URL (optional, emoji ki jagah use hoga)</label>
+                <input
+                  type="text"
+                  placeholder="https://example.com/fruits.jpg"
+                  value={form.image}
+                  onChange={(e) => setForm({...form, image: e.target.value})}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
+                />
+                {form.image && (
+                  <img
+                    src={form.image}
+                    alt="preview"
+                    className="mt-2 w-16 h-16 object-cover rounded-xl border border-gray-200"
+                    onError={(e) => { e.target.style.display = 'none' }}
+                  />
+                )}
               </div>
               <div className="flex gap-3 pt-2">
                 <button
