@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 const dotenv = require('dotenv')
 const path = require('path')
+const orderRoutes = require('./routes/orderRoutes')
 
 // Middleware
 const errorHandler = require('./middleware/error')
@@ -31,7 +32,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/categories', categoryRoutes)
-
+app.use('/api/orders', orderRoutes)
 app.use(errorHandler)
 
 mongoose.connect(process.env.MONGODB_URI)

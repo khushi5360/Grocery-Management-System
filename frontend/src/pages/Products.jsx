@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FiShoppingCart, FiHeart, FiStar, FiFilter, FiSearch } from 'react-icons/fi'
 import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
 
 export default function Products() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchParams] = useSearchParams()
   const { addToCart } = useCart()
-  
+  const { toggleWishlist, isWishlisted } = useWishlist()
+
   const category = searchParams.get('category')
   const search = searchParams.get('search')
 
@@ -99,6 +101,20 @@ export default function Products() {
                      product.category.name === 'Grains' ? '🌾' : '🛒'}
                   </span>
                 </div>
+
+                {/* Wishlist Button */}
+                <button
+                  onClick={() => toggleWishlist(product)}
+                  className="absolute top-3    right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition"
+                >
+                  <FiHeart
+                    className={`text-lg ${
+                     isWishlisted(product._id)
+                     ? 'fill-red-500        text-red-500'
+                     : 'text-gray-400'
+               }`}
+                  />
+                </button>
 
                 {/* Info */}
                 <div className="p-4">

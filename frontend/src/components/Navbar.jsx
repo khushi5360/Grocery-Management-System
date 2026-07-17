@@ -10,11 +10,13 @@ import {
   FiX,
   FiChevronDown
 } from 'react-icons/fi'
+import { useWishlist } from '../context/WishlistContext'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
+  const { wishlistCount } = useWishlist()
   const { cartCount } = useCart()
 
   // User check karo
@@ -92,7 +94,7 @@ export default function Navbar() {
             >
               <FiHeart className="text-2xl text-gray-600 group-hover:text-green-600 transition" />
               <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                0
+                {wishlistCount}
               </span>
             </Link>
 
@@ -142,60 +144,43 @@ export default function Navbar() {
       </div>
 
       {/* BOTTOM NAV LINKS */}
-      <div className="border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4">
-          <nav className="flex items-center gap-6 py-2 overflow-x-auto">
-            <Link 
-              to="/"
-              className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition"
-            >
-              Home
-            </Link>
-            <Link 
-              to="/products"
-              className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition"
-            >
-              Shop
-            </Link>
-            <Link 
-              to="/products?category=fruits"
-              className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition"
-            >
-              Fruits
-            </Link>
-            <Link 
-              to="/products?category=vegetables"
-              className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition"
-            >
-              Vegetables
-            </Link>
-            <Link 
-              to="/products?category=dairy"
-              className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition"
-            >
-              Dairy
-            </Link>
-            <Link 
-              to="/products?category=beverages"
-              className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition"
-            >
-              Beverages
-            </Link>
-            <Link 
-              to="/products?offer=true"
-              className="text-red-500 hover:text-red-600 font-semibold text-sm whitespace-nowrap transition"
-            >
-              🔥 Offers
-            </Link>
-            <Link 
-              to="/products?best=true"
-              className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition"
-            >
-              Best Sellers
-            </Link>
-          </nav>
-        </div>
-      </div>
+      {/* BOTTOM NAV LINKS */}
+<div className="border-t border-gray-100">
+  <div className="max-w-7xl mx-auto px-4">
+    <nav className="flex items-center gap-6 py-2 overflow-x-auto">
+      <Link to="/" className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition">
+        Home
+      </Link>
+      <Link to="/products" className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition">
+        Shop
+      </Link>
+      <Link to="/products?category=fruits" className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition">
+        Fruits
+      </Link>
+      <Link to="/products?category=vegetables" className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition">
+        Vegetables
+      </Link>
+      <Link to="/products?category=dairy" className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition">
+        Dairy
+      </Link>
+      <Link to="/products?category=beverages" className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition">
+        Beverages
+      </Link>
+      <Link to="/products?offer=true" className="text-red-500 hover:text-red-600 font-semibold text-sm whitespace-nowrap transition">
+        🔥 Offers
+      </Link>
+      <Link to="/products?best=true" className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition">
+        Best Sellers
+      </Link>
+      <Link to="/about" className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition">
+        About
+      </Link>
+      <Link to="/contact" className="text-gray-700 hover:text-green-600 font-medium text-sm whitespace-nowrap transition">
+        Contact
+      </Link>
+    </nav>
+  </div>
+</div>
 
     </header>
   )

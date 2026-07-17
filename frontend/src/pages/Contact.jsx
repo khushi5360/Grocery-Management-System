@@ -33,7 +33,7 @@ export default function Contact() {
             </h2>
 
             {[
-              { icon: FiPhone, title: 'Phone', value: '+91 72850 93573', color: 'text-green-600' },
+              { icon: FiPhone, title: 'Phone', value: '+91 72850  93573', color: 'text-green-600' },
               { icon: FiMail, title: 'Email', value: 'support@grocera.com', color: 'text-blue-600' },
               { icon: FiMapPin, title: 'Address', value: '123 Market Street, Mumbai, Maharashtra 400001', color: 'text-red-500' },
             ].map((item) => (

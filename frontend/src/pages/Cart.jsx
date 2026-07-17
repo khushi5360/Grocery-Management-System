@@ -48,12 +48,16 @@ export default function Cart() {
                 className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm"
               >
                 {/* Product Emoji */}
-                <div className="bg-gray-50 rounded-xl p-4 text-4xl">
-                  {item.category?.name === 'Fruits' ? '🍎' :
-                   item.category?.name === 'Vegetables' ? '🥦' :
-                   item.category?.name === 'Dairy' ? '🥛' : '🛒'}
-                </div>
-
+                {/* Product Emoji */}
+<div className="bg-gray-50 rounded-xl p-4 text-4xl">
+  {item.emoji ? item.emoji :
+   item.category?.name === 'Fruits' || item.category === 'Fruits' ? '🍎' :
+   item.category?.name === 'Vegetables' || item.category === 'Vegetables' ? '🥦' :
+   item.category?.name === 'Dairy' || item.category === 'Dairy' ? '🥛' :
+   item.category?.name === 'Grains' || item.category === 'Grains' ? '🌾' :
+   item.category?.name === 'Beverages' || item.category === 'Beverages' ? '🧃' :
+   item.category?.name === 'Snacks' || item.category === 'Snacks' ? '🍿' : '🛒'}
+</div>
                 {/* Product Info */}
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-800">

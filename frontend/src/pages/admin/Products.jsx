@@ -1,13 +1,28 @@
 import { useState, useEffect } from 'react'
-import { FiPlus, FiEdit, FiTrash2, FiSearch } from 'react-icons/fi'
+import { FiPlus, FiEdit, FiTrash2, FiSearch, FiX } from 'react-icons/fi'
 
 export default function Products() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [showModal, setShowModal] = useState(false)
+  const [categories, setCategories] = useState([])
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    price: '',
+    originalPrice: '',
+    discount: '',
+    category: '',
+    unit: 'kg',
+    stock: '',
+    isFeatured: false,
+    isBestSeller: false
+  })
 
   useEffect(() => {
     fetchProducts()
+    fetchCategories()
   }, [])
 
   const fetchProducts = async () => {
@@ -22,19 +37,70 @@ export default function Products() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this product?')) return
+  const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem('token')
-      await fetch(`http://localhost:5000/api/products/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      fetchProducts()
+      const res = await fetch('http://localhost:5000/api/categories')
+      const data = await res.json()
+      if (data.success) setCategories(data.categories)
     } catch (error) {
       console.log(error)
     }
   }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch('http://localhost:5000/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(form)
+      })
+      const data = await res.json()
+      if (data.success) {
+        setShowModal(false)
+        fetchProducts()
+        setForm({
+          name: '', description: '', price: '',
+          originalPrice: '', discount: '', category: '',
+          unit: 'kg', stock: '', isFeatured: false, isBestSeller: false
+        })
+      } else {
+        alert(data.message)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleDelete = async (id) => {
+  if (!window.confirm('Delete this product?')) return
+  try {
+    const token = localStorage.getItem('token')
+    console.log('Token:', token) // Debug
+    
+    const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+      method: 'DELETE',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    const data = await res.json()
+    console.log('Delete response:', data) // Debug
+    
+    if (data.success) {
+      fetchProducts()
+    } else {
+      alert(data.message)
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
 
   const filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -47,7 +113,13 @@ export default function Products() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Products</h2>
-        <div className="text-sm text-gray-500">{products.length} total</div>
+        <button
+          onClick={() => setShowModal(true)}
+          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition"
+        >
+          <FiPlus />
+          Add Product
+        </button>
       </div>
 
       {/* Search */}
@@ -122,6 +194,196 @@ export default function Products() {
           </tbody>
         </table>
       </div>
+
+      {/* ADD PRODUCT MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b">
+              <h3 className="text-xl font-bold text-gray-800">Add New Product</h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition"
+              >
+                <FiX />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+
+              {/* Name */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1">
+                  Product Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter product name"
+                  value={form.name}
+                  onChange={(e) => setForm({...form, name: e.target.value})}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1">
+                  Description *
+                </label>
+                <textarea
+                  placeholder="Enter product description"
+                  value={form.description}
+                  onChange={(e) => setForm({...form, description: e.target.value})}
+                  required
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 resize-none"
+                />
+              </div>
+
+              {/* Price + Original Price */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Price (₹) *
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="120"
+                    value={form.price}
+                    onChange={(e) => setForm({...form, price: e.target.value})}
+                    required
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Original Price (₹)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="150"
+                    value={form.originalPrice}
+                    onChange={(e) => setForm({...form, originalPrice: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
+                  />
+                </div>
+              </div>
+
+              {/* Discount + Stock */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Discount (%)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="20"
+                    value={form.discount}
+                    onChange={(e) => setForm({...form, discount: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Stock *
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="100"
+                    value={form.stock}
+                    onChange={(e) => setForm({...form, stock: e.target.value})}
+                    required
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
+                  />
+                </div>
+              </div>
+
+              {/* Category + Unit */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Category *
+                  </label>
+                  <select
+                    value={form.category}
+                    onChange={(e) => setForm({...form, category: e.target.value})}
+                    required
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map((cat) => (
+                      <option key={cat._id} value={cat._id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                    Unit
+                  </label>
+                  <select
+                    value={form.unit}
+                    onChange={(e) => setForm({...form, unit: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500"
+                  >
+                    <option value="kg">kg</option>
+                    <option value="litre">litre</option>
+                    <option value="piece">piece</option>
+                    <option value="dozen">dozen</option>
+                    <option value="packet">packet</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Featured + BestSeller */}
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.isFeatured}
+                    onChange={(e) => setForm({...form, isFeatured: e.target.checked})}
+                    className="w-4 h-4 accent-green-600"
+                  />
+                  <span className="text-sm text-gray-700">Featured Product</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.isBestSeller}
+                    onChange={(e) => setForm({...form, isBestSeller: e.target.checked})}
+                    className="w-4 h-4 accent-green-600"
+                  />
+                  <span className="text-sm text-gray-700">Best Seller</span>
+                </label>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl hover:bg-gray-50 transition font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-green-600 text-white py-2.5 rounded-xl hover:bg-green-700 transition font-medium"
+                >
+                  Add Product
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

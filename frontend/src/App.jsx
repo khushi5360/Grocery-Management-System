@@ -1,9 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-
-// Layout
+import AdminRoute from './components/AdminRoute'
 import MainLayout from './layouts/MainLayout'
-
-// Pages — Customer
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -17,8 +14,6 @@ import MyOrders from './pages/MyOrders'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
-
-// Pages — Admin
 import AdminLayout from './layouts/AdminLayout'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
@@ -49,8 +44,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
+        {/* Admin Routes — Protected */}
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }>
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
